@@ -1,4 +1,4 @@
-package gce.module02.model;
+package gce.module05.model;
 
 import java.time.LocalDate;
 
