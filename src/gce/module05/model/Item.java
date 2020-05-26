@@ -1,26 +1,42 @@
 package gce.module05.model;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Item {
+@Entity
+@Table(name = "item")
+public class Item implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "itemDescription", columnDefinition = "VARCHAR(255)")
     private String itemDescription;
+
+    @Column(name = "itemDetails", columnDefinition = "TEXT")
     private String itemDetails;
+
+    @Column(name = "itemDueDate")
     private LocalDate itemDueDate;
 
     /**
      * Model constructor
-     *
-     * @param itemDescription The to-do item description
-     * @param itemDetails     The to-do item details
-     * @param itemDueDate     The to-do item due date
      */
-    public Item(String itemDescription, String itemDetails, LocalDate itemDueDate) {
-        this.itemDescription = itemDescription;
-        this.itemDetails = itemDetails;
-        this.itemDueDate = itemDueDate;
+    public Item() {
     }
 
     // Setters and getters
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getItemDescription() {
         return itemDescription;
     }
