@@ -79,12 +79,16 @@ public class DialogController {
 
         /*
          We want to automatically select the newly added to-do item in
-         the ListView. To do that, we first add the item to the Data
-         model and then return it to the MainController
+         the ListView. To do that, we first add the item to the database
+         and Data model and then return it to the MainController
         */
-        Item newItem = new Item(itemDescription, itemDetails, itemDueDate);
+        Item newItem = new Item();
 
-        // Add the new item to the Data model
+        newItem.setItemDescription(itemDescription);
+        newItem.setItemDetails(itemDetails);
+        newItem.setItemDueDate(itemDueDate);
+
+        // Add the new item to the Data model and save to database
         Data.getInstance().addItem(newItem);
 
         return newItem;
