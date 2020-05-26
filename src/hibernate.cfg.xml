@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="dialect">
+            org.hibernate.dialect.MySQL55Dialect
+        </property>
+
+        <property name="hibernate.connection.driver_class">
+            com.mysql.cj.jdbc.Driver
+        </property>
+
+        <property name="hibernate.connection.url">
+            jdbc:mysql://localhost:3306/castaneda_module_05?serverTimezone=America/New_York
+        </property>
+
+        <property name="hibernate.connection.username">
+            castaneda
+        </property>
+
+        <property name="hibernate.connection.password">
+            module05
+        </property>
+
+        <property name="hibernate.connection.characterEncoding">
+            utf8
+        </property>
+
+        <property name="hibernate.connection.useUnicode">
+            true
+        </property>
+
+        <property name="show_sql">
+            true
+        </property>
+
+        <property name="hbm2ddl.auto">
+            update
+        </property>
+
+        <mapping class="gce.module05.model.Item"/>
+    </session-factory>
+</hibernate-configuration>
