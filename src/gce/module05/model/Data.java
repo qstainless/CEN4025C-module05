@@ -70,12 +70,10 @@ public class Data {
     }
 
     /**
-     * Loads the to-do items from a text file. If the text files does not
-     * already exist in the filesystem, the to-do list will be empty. Once
-     * to-do items are added to the Data model, they will be saved to the
-     * predefined text file when the user exits the application, either by
-     * using the Close option in the To-Do menu or by using the window's
-     * close button.
+     * Loads the to-do items from the database. If the table does not exist,
+     * hibernate will create it and the to-do list will be empty. Once to-do
+     * items are created, they are first saved to the database. If successfully
+     * saved, they will be added to the Data model for display in the GUI.
      */
     public void loadItems() {
         // Must use an observableArrayList to populate the GUI ListView
@@ -96,7 +94,7 @@ public class Data {
     }
 
     /**
-     * Deletes an item from the Data model
+     * Deletes an item from the database and removes it from the Data model
      *
      * @param item The item to delete
      */
