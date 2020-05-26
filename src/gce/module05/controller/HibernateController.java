@@ -8,10 +8,14 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
+/**
+ * Starts the hibernate session and session factory
+ */
 public class HibernateController {
 
     private static SessionFactory sessionFactory = null;
 
+    // Loads the session factory automatically
     static {
         try {
             loadSessionFactory();
@@ -21,6 +25,9 @@ public class HibernateController {
         }
     }
 
+    /**
+     * Loads the session factory based on the hibernate configuration file
+     */
     public static void loadSessionFactory() {
         Configuration configuration = new Configuration();
 
@@ -32,6 +39,11 @@ public class HibernateController {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
     }
 
+    /**
+     * Opens and returns the hibernate session
+     *
+     * @return The opened session
+     */
     public static Session getSession() {
         Session session = null;
 
