@@ -63,16 +63,4 @@ public class Main extends Application {
                     "Program cannot continue. Exiting.");
         }
     }
-
-    /**
-     * Called when the application is closed.
-     */
-    @Override
-    public void stop() {
-        try {
-            Data.getInstance().saveItems();
-        } catch (Exception e) {
-            System.out.println("Error saving the to-do items to file.");
-        }
-    }
 }
