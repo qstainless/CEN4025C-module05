@@ -106,7 +106,6 @@ public class MainController {
      */
     @FXML
     public void programExit() {
-        Data.getInstance().saveItems();
         System.exit(0);
     }
 
