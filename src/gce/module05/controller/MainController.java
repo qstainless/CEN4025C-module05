@@ -77,7 +77,7 @@ public class MainController {
             // Get the dialog controller so we can access it directly
             DialogController dialogController = fxmlLoader.getController();
 
-            // Add the data entered into the dialog to the Data model
+            // Save the data in the database and add it to the Data model
             Item newItem = dialogController.processResults();
 
             // Select the newly added to-do item in the Data model
