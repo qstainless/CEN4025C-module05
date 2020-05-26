@@ -43,7 +43,7 @@ public class MainController {
     private Label dueDateLabel;
 
     /**
-     * Presents the dialig to add a to-do item.
+     * Presents the dialog to add a to-do item.
      */
     @FXML
     public void newItemDialog() {
@@ -99,10 +99,7 @@ public class MainController {
     }
 
     /**
-     * Called by the Exit menu item. As opposed to closing the stage, which
-     * automatically calls the javafx stop() method, this method will first
-     * call the Data singleton to save all to-do items before closing the
-     * application.
+     * Called by the Exit menu item.
      */
     @FXML
     public void programExit() {
@@ -113,7 +110,7 @@ public class MainController {
      *
      */
     public void initialize() {
-        // Populate the ListView with the to-do items in the Data model
+        // Populate the ListView with the to-do items in the database
         populateListView();
     }
 
