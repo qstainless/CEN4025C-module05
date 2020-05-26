@@ -1,31 +1,23 @@
 package gce.module05.model;
 
+import gce.module05.controller.HibernateController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
 
 /**
- * Singleton class to load and save the to-do items to a text file.
- * Saving to a file is not practical for large quantities of data,
- * however, for this assignment's purposes, saving to a text file
- * is convenient.
+ * Singleton class to create, read, and delete the to-do items in a database.
  */
 public class Data {
 
     private static final Data instance = new Data();
-
-    // Path to the text file that stores the to-do items
-    private static final Path path = Paths.get("CastanedaTodoList.txt");
-
-    // Used to format the itemDueDate before saving
-    private final DateTimeFormatter formatter;
 
     // Where the to-do items will be stored in memory
     private ObservableList<Item> items;
@@ -34,11 +26,6 @@ public class Data {
      * Class constructor
      */
     private Data() {
-        /*
-         Consistent format for saving and loading the to-do item's DueDate
-         even though it will be displayed in a different format on the GUI
-        */
-        formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     }
 
     // Getters
@@ -50,9 +37,36 @@ public class Data {
         return items;
     }
 
-    // Add a new to-do item to the Data model
+    // Add a new to-do item to the database and the Data model
     public void addItem(Item item) {
-        items.add(item);
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            session = HibernateController.getSession();
+            transaction = session.beginTransaction();
+            session.save(item);
+            transaction.commit();
+        } catch (Exception e) {
+            System.out.println("Error writing to database. Item not added.");
+            e.printStackTrace();
+
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            try {
+                if (session != null) {
+                    session.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error closing database connection.");
+                e.printStackTrace();
+            }
+
+            // Add item to Data model if successfully saved in the database
+            items.add(item);
+        }
     }
 
     /**
@@ -67,42 +81,18 @@ public class Data {
         // Must use an observableArrayList to populate the GUI ListView
         items = FXCollections.observableArrayList();
 
-        String itemData = readItemsFromFile();
+        Session session = HibernateController.getSession();
 
-        String[] allItems = itemData.split("_\\.:–=–=–:\\._");
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery<Item> itemCriteriaQuery = criteriaBuilder.createQuery(Item.class);
+        Root<Item> itemRoot = itemCriteriaQuery.from(Item.class);
+        CriteriaQuery<Item> allItems = itemCriteriaQuery.select(itemRoot);
 
-        for (String individualItem : allItems) {
-            String[] loadedItems = individualItem.split("\t");
+        TypedQuery<Item> allQuery = session.createQuery(allItems);
 
-            String itemDescription = loadedItems[0];
-            String itemDetails = loadedItems[1];
-            String itemDueDate = loadedItems[2];
+        List<Item> itemData = allQuery.getResultList();
 
-            LocalDate formattedItemDueDate = LocalDate.parse(itemDueDate, formatter);
-
-            Item item = new Item(itemDescription, itemDetails, formattedItemDueDate);
-
-            items.add(item);
-        }
-    }
-
-    /**
-     * Saves to-do items to a text file when the application is closed.
-     * Uses a specific "end-of-item" string to allow for multi-line
-     * itemDetails.
-     */
-    public void saveItems() {
-        try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path)) {
-            for (Item item : items) {
-                bufferedWriter.write(String.format("%s\t%s\t%s",
-                        item.getItemDescription(),
-                        item.getItemDetails(),
-                        item.getItemDueDate().format(formatter)));
-                bufferedWriter.write("_.:–=–=–:._");
-            }
-        } catch (IOException e) {
-            System.out.println("Error writing to-do list items to file.");
-        }
+        items.addAll(itemData);
     }
 
     /**
@@ -111,23 +101,33 @@ public class Data {
      * @param item The item to delete
      */
     public void deleteItem(Item item) {
-        items.remove(item);
-    }
-
-    /**
-     * Reads all to-do items from the text file.
-     *
-     * @return The string containing all to-do items
-     */
-    public static String readItemsFromFile() {
-        String itemData = "";
+        Session session = null;
+        Transaction transaction = null;
 
         try {
-            itemData = new String(Files.readAllBytes(path));
-        } catch (IOException ioException) {
-            System.out.println("To-do Item text file does not exist. A new file will be created.");
-        }
+            session = HibernateController.getSession();
+            transaction = session.beginTransaction();
+            session.delete(item);
+            transaction.commit();
+        } catch (Exception e) {
+            System.out.println("Error deleting from database. Item not deleted.");
+            e.printStackTrace();
 
-        return itemData;
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        } finally {
+            try {
+                if (session != null) {
+                    session.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error closing database connection.");
+                e.printStackTrace();
+            }
+
+            // Remove item from Data model if successfully deleted from the database
+            items.remove(item);
+        }
     }
 }
