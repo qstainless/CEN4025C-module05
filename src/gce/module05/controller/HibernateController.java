@@ -32,13 +32,13 @@ public class HibernateController {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
     }
 
-    public static Session getSession() throws HibernateException {
+    public static Session getSession() {
         Session session = null;
 
         try {
             session = sessionFactory.openSession();
         } catch (Throwable t) {
-            System.err.println("Error opening the session. ");
+            System.err.println("Error opening the session.");
 
             t.printStackTrace();
         }
