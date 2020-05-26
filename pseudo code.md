@@ -1,4 +1,4 @@
-## To-do application
+## To-do application using Hibernate to save data
 
 Guillermo Castaneda Echegaray
 
@@ -9,19 +9,49 @@ Dr. Dhrgam AL Kafaf
 
 ### Application structure
 ```
-src
-    gce
-        module02
-            model
-                Data.java - Singleton class to store the to-do items in memory
-                Item.java - Class to store the elements of each to-do item
-            view
-                MainStage.java - The applications main window layout
-                MainDialog.java - The dialog for adding new to-do items
-            controller
-                MainController.java - Handles the functions of the main stage
-                DialogController.java - Handles the functions of the main dialog
+/src
+    hibernate.cfg.xml - The hibernate configuration file
+
+    /gce
+
+        /module02
+            
             Main.java - The application's point of entry
+            
+            /model
+                Data.java - Singleton class to store the to-do items in memory
+                            and create, read, and delete operations to the 
+                            database
+
+                Item.java - Class to store the elements of each to-do item
+
+            /view
+                MainStage.java - The applications main window layout
+
+                MainDialog.java - The dialog for adding new to-do items
+
+            /controller
+                MainController.java - Handles the functions of the main stage
+
+                DialogController.java - Handles the functions of the main dialog
+
+                HibernateController.java - Handles JDBC sessions
+```
+
+### hibernate.cfg.xml
+```
+Set session-factory properties for the hibernate-configuration
+    dialect
+    driver_class
+    connection.url (fix for potential serverTimezone error)
+    database username
+    database password
+    character enconding
+    use unicode (true)
+    show sql (true for debugging)
+    hbm2ddl (set to update)
+    map to Item model
+
 ```
 
 ### Main.java
@@ -33,7 +63,7 @@ public class Main extends JavaFX application
 
     public void init
         get the singleton instance
-        load to-do items from the text file
+        load to-do items from the database
 
     public void start
         use FXMLLoader to load the fxml file with the main stage GUI
@@ -41,25 +71,32 @@ public class Main extends JavaFX application
         set the primary stage scene dimensions
         show the primary stage on the screen
 
-    public void stop
-        get the singleton instance
-        save the to-do items to the text file
+    Remove public void stop method
 ```
 
 ### model
 #### Item.java
 ```
+Include Hibernate annotations
+
 public class Item
+    Entity linked to "item" table
+    implement serializable
 
     Variable decalrations:
-        String itemDescription;
-        String itemDetails;
-        LocalDate itemDueDate;
+        Integer id (auto-increment IDENTITY)
+        String itemDescription VARCHAR(255)
+        String itemDetails TEXT
+        LocalDate itemDueDate DATE
 
-    public Item(String itemDescription, String itemDetails, LocalDate itemDueDate)
-        set passed variable itemDescription to object
-        set passed variable itemDetails to object
-        set passed variable itemDueDate to object
+    public Item()
+        Do not pass paramenters. Use setters instead per hibernate
+
+    public Integer getId
+        return the value of the row's id
+
+    public void setId
+        sets the value of id
 
     public String getItemDescription
         returns the value of itemDescription
@@ -89,14 +126,11 @@ public class Item
 public class Data {
     Data instance = new Data();
 
-    Variable declarations:
-        filename where the to-do items will be saved
-        DateTimeFormatter to format itemDueDate
+    Variable declarations
         ObservableList where the to-do items will be stored in memory
 
     private Data
-        Constructor
-        declare the date format in which itemDueDate will be saved
+        Singleton constructor
 
     public static Data getInstance
         returns the singleton instance
@@ -105,35 +139,31 @@ public class Data {
         returns the items in the to-do list
 
     public void addItem(Item item)
-        adds the passed item to the Data model
+        add the passed item to the database
+        if item is successfully added to the database
+            add the passed item to the Data model
+        else
+            rollback the database transaction
+            do not add item to the Data model
 
     public void loadItems
         instantiate items as an observable array list in FXCollections
 
-        populate the String itemData by calling the readItemsFromFile method
-
-        split the itemData variable using a unique delimiter and add the delimited values to a temporary array of strings
-
-        parse through the temporary array of strings
-            split each element of the array using a tab delimiter (three indexes)
-            the first index is assigned to itemDescription
-            the second index is assigned to itemDetails
-            the third indes is assigned to itemDueDate
-
-            create a new Item instance with the three indexes
-            add the created Item instance to the observable array list items
-
-    public static String readItemsFromFile
-        tries top read all bytes in the specified file path
-
-        returns the items read from the file (will return null values if it is empty or does not exist)
-
-    public void saveItems
-        use BufferedWriter to write all elements in the Data model to the text file
-        after writing the elements of each item in the to-do list, add a unique delimiter
+        open the hibernate session
+        create the CriteriaBuilder
+        create the CriteriaQuery
+        set the root for the CriteriaQuery
+        select the CriteriaQuery root
+        get the query result list
+        add the result list to a List of Item
+        populate the observable array list with the query results
 
     public void deleteItem(Item item)
-        use the remove() method to remove the passed item from items
+        delete the passed item from the database
+        if the item is successfully deleted from the database
+            use the remove() method to remove the passed item from the Data model
+        else
+            rollback the database transaction
 ```
  
 ### view
@@ -201,12 +231,11 @@ public class MainController
                 delete the selected item by calling the deleteItem method
 
         public void programExit
-            get the singleton instance and save the to-do items to the text file
             exit the program with exit code 0
 
     Non-annotated methods
         public void initialize
-            Call method to populate the ListView with the to-do items in the Data model
+            Call method to populate the ListView with the to-do items in the database
 
         public void populateListView
             listen to events to display to-do list items and select the newly added item
@@ -249,6 +278,28 @@ public class DialogController
         set default values for empty fields
         set tomorrow's date if no due date is selected in the DatePicker
 
-        add the newly created item to the Data model
+        populate the newItem with the Item model setters
+        add the newly created item to the database and the Data model
 
         return the newly created item
+```
+
+### HibernateController.java
+```
+public class HibernateController
+    SessionFactory declaration
+
+    static constructor to try and load the session factory automatically
+
+    public static void loadSessionFactory
+        load the hibernate configuration file
+        add the annotated class Item to the configuration
+
+        create a new ServiceRegistry
+        build the SessionFactory
+
+    public static Session getSession
+        opens a session
+        if the session opens successfully
+            return the opened session
+```
