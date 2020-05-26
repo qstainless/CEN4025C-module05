@@ -13,15 +13,15 @@
         </property>
 
         <property name="hibernate.connection.url">
-            jdbc:mysql://localhost:3306/castaneda_module_05?serverTimezone=America/New_York
+            jdbc:mysql://localhost:3306/module_05_db?serverTimezone=America/New_York
         </property>
 
         <property name="hibernate.connection.username">
-            castaneda
+            module05user
         </property>
 
         <property name="hibernate.connection.password">
-            module05
+            module05pass
         </property>
 
         <property name="hibernate.connection.characterEncoding">
