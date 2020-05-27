@@ -284,7 +284,7 @@ public class DialogController
         return the newly created item
 ```
 
-### HibernateController.java
+#### HibernateController.java
 ```
 public class HibernateController
     SessionFactory declaration
